@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Yerington Route: Tribal Gym → Overflow Ponds → Anaconda Overlook</title>
+  <title>Yerington Route: Tribal Gym → Pit Overlook → Overflow Ponds</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     :root {
@@ -50,7 +50,7 @@
 </head>
 <body>
   <header>
-    <h1>Yerington Route: Tribal Gym → Overflow Ponds → Anaconda Overlook</h1>
+    <h1>Yerington Route: Tribal Gym → Pit Overlook → Overflow Ponds</h1>
     <p>Tap a numbered marker for coordinates. Use the layer button on the map to switch between USGS topographic and aerial backgrounds.</p>
   </header>
 
@@ -66,25 +66,27 @@
 
         <div class="stop">
           <div class="stop-title">1 — Tribal Gym</div>
-          <div class="address">171 Campbell Lane, Yerington, NV</div>
-          <div class="coords">39.07013, -119.18626</div>
+          <div class="coords">39.0742486, -119.2112574</div>
         </div>
         <div class="stop">
-          <div class="stop-title">2 — Overflow Ponds</div>
-          <div class="coords">38.99413, -119.19851</div>
-        </div>
-        <div class="stop">
-          <div class="stop-title">3 — Anaconda Overlook</div>
-          <div class="address">1 Austin St, Yerington, NV</div>
+          <div class="stop-title">2 — Pit Overlook</div>
           <div class="coords">38.98665, -119.20680</div>
+        </div>
+        <div class="stop">
+          <div class="stop-title">3 — Overflow Ponds</div>
+          <div class="coords">38.99422, -119.19969</div>
+        </div>
+
+        <div class="status" style="margin-top:10px;background:#fff7ed;color:#7c2d12;border:1px solid #fed7aa;">
+          <strong>Route to Pit Overlook:</strong> Turn right onto Campbell Lane, left onto Sunset Hill Drive, right onto Luzier Lane, then left onto the unnamed dirt road and continue out to the Anaconda lookout area.
         </div>
 
         <div class="buttons">
-          <a class="button" href="https://www.google.com/maps/dir/?api=1&origin=39.07013%2C-119.18626&destination=38.98665%2C-119.20680&waypoints=38.99413%2C-119.19851&travelmode=walking" target="_blank" rel="noopener">Open walking route in Google Maps</a>
-          <a class="button secondary" href="https://www.google.com/maps/search/?api=1&query=38.99413%2C-119.19851" target="_blank" rel="noopener">Open Overflow Ponds</a>
+          <a class="button" href="https://www.google.com/maps/dir/39.0742486,-119.2112574/38.98665,-119.2068/38.99422,-119.19969/@38.9880731,-119.2069678,1028m/data=!3m1!1e3!4m25!4m24!1m10!3m4!1m2!1d-119.2139561!2d39.065831!3s0x8098463e13d50017:0xbb5e03e775de9c6e!3m4!1m2!1d-119.2092536!2d39.026143!3s0x809847eab6a4ef5f:0x7a5ca100b70d1f40!1m10!3m4!1m2!1d-119.2068972!2d38.9862462!3s0x80983847325bfd53:0x17bcc7b75c66e07f!3m4!1m2!1d-119.2070851!2d38.9878547!3s0x80983840e42fcd37:0x33eb6b30f95d2789!1m0!3e2" target="_blank" rel="noopener">Open exact walking route in Google Maps</a>
+          <a class="button secondary" href="https://www.google.com/maps/search/?api=1&query=38.99422%2C-119.19969" target="_blank" rel="noopener">Open Overflow Ponds</a>
         </div>
 
-        <div class="status" id="routeStatus">Background map is served by USGS The National Map. The displayed route intentionally follows the motor-vehicle road network so it stays on US-95 ALT/Burch Drive rather than taking unrealistic pedestrian shortcuts; the time is converted to a walking estimate. Use Google Maps for live navigation.</div>
+        <div class="status" id="routeStatus">Background map is served by USGS The National Map. The displayed route intentionally follows the motor-vehicle road network rather than taking unrealistic pedestrian shortcuts; the time is converted to a walking estimate. Use Google Maps for live navigation.</div>
         <div class="attribution-note">Basemap: U.S. Geological Survey, The National Map. The topographic service combines USGS and other public-domain/reference datasets; imagery is from USGS/The National Map sources. Attribution is also displayed on the map.</div>
       </div>
     </aside>
@@ -94,9 +96,9 @@
   <script>
     (function () {
       const stops = [
-        {n:1, name:'Tribal Gym', address:'171 Campbell Lane, Yerington, NV', lat:39.07013, lon:-119.18626},
-        {n:2, name:'Overflow Ponds', address:'', lat:38.99413, lon:-119.19851},
-        {n:3, name:'Anaconda Overlook', address:'1 Austin St, Yerington, NV', lat:38.98665, lon:-119.20680}
+        {n:1, name:'Tribal Gym', address:'', lat:39.0742486, lon:-119.2112574},
+        {n:2, name:'Pit Overlook', address:'', lat:38.98665, lon:-119.20680},
+        {n:3, name:'Overflow Ponds', address:'', lat:38.99422, lon:-119.19969}
       ];
 
       const map = L.map('map', { zoomControl:true, preferCanvas:true });
@@ -168,7 +170,19 @@
         color:'#b45309', weight:4, opacity:.8, dashArray:'8 8'
       }).addTo(map);
 
-      const coords = stops.map(s=>`${s.lon},${s.lat}`).join(';');
+      // Route-shaping points extracted from the supplied Google Maps route.
+      // They keep the first leg on Campbell Lane → Sunset Hill Drive → Luzier Lane → dirt-road approach,
+      // and preserve the intended path around the overlook before continuing to the Overflow Ponds.
+      const routePoints = [
+        {kind:'stop', name:'Tribal Gym', lat:39.0742486, lon:-119.2112574},
+        {kind:'via',  lat:39.0658310, lon:-119.2139561},
+        {kind:'via',  lat:39.0261430, lon:-119.2092536},
+        {kind:'stop', name:'Pit Overlook', lat:38.9866500, lon:-119.2068000},
+        {kind:'via',  lat:38.9862462, lon:-119.2068972},
+        {kind:'via',  lat:38.9878547, lon:-119.2070851},
+        {kind:'stop', name:'Overflow Ponds', lat:38.9942200, lon:-119.1996900}
+      ];
+      const coords = routePoints.map(p=>`${p.lon},${p.lat}`).join(';');
       const routeUrl = `https://routing.openstreetmap.de/routed-car/route/v1/driving/${coords}?overview=full&geometries=geojson&steps=false`;
       const WALKING_MPH = 3.0;
 
@@ -182,21 +196,27 @@
           const roadLine=L.polyline(latlngs,{color:'#b45309',weight:5,opacity:.9}).addTo(map);
           map.fitBounds(roadLine.getBounds(),{padding:[55,55],maxZoom:13});
 
-          const totalMi=route.distance/1609.344, totalMin=(totalMi/WALKING_MPH)*60;
-          const leg1=route.legs[0] ? route.legs[0].distance/1609.344 : null;
-          const leg2=route.legs[1] ? route.legs[1].distance/1609.344 : null;
-          const parts=[];
-          if (leg1!==null) parts.push(`1→2: ${leg1.toFixed(1)} mi`);
-          if (leg2!==null) parts.push(`2→3: ${leg2.toFixed(1)} mi`);
+          // OSRM creates one leg between every shaping point. Sum them into the two public-facing legs.
+          const legMiles = route.legs.map(l => l.distance/1609.344);
+          const leg1 = legMiles.slice(0,3).reduce((a,b)=>a+b,0); // Tribal Gym → Pit Overlook
+          const leg2 = legMiles.slice(3).reduce((a,b)=>a+b,0);   // Pit Overlook → Overflow Ponds
+          const totalMi = leg1 + leg2;
+          const totalMin=(totalMi/WALKING_MPH)*60;
           const hrs=Math.floor(totalMin/60), mins=Math.round(totalMin%60);
           const timeText=hrs ? `${hrs} hr ${mins} min` : `${Math.round(totalMin)} min`;
-          document.getElementById('routeSummary').textContent=`${parts.join(' • ')} • Total: ${totalMi.toFixed(1)} mi • est. walk ${timeText}`;
-          document.getElementById('routeStatus').textContent='The orange line uses road-routing geometry so it follows the practical road corridor (including US-95 ALT and Burch Drive) instead of pedestrian shortcuts. Walking time is estimated at 3 mph and is not turn-by-turn pedestrian safety guidance; verify shoulder/access conditions before walking.';
+          document.getElementById('routeSummary').textContent=`1→2: ${leg1.toFixed(1)} mi • 2→3: ${leg2.toFixed(1)} mi • Total: ${totalMi.toFixed(1)} mi • est. walk ${timeText}`;
+          document.getElementById('routeStatus').textContent='The orange line is forced through route-shaping points taken from the supplied Google Maps route so the approach follows Campbell Lane, Sunset Hill Drive, Luzier Lane, and the dirt-road approach to the Anaconda lookout. Walking time is estimated at 3 mph; use Google Maps for live navigation and verify access/conditions on the dirt-road segment.';
         })
         .catch(() => {
+          // If live routing fails, draw the shaping-point path so the intended corridor is still visible.
+          if (map.hasLayer(fallback)) map.removeLayer(fallback);
+          const shaped = L.polyline(routePoints.map(p=>[p.lat,p.lon]), {
+            color:'#b45309', weight:4, opacity:.85, dashArray:'8 8'
+          }).addTo(map);
+          map.fitBounds(shaped.getBounds(),{padding:[55,55],maxZoom:13});
           const d1=directMiles(stops[0],stops[1]), d2=directMiles(stops[1],stops[2]);
-          document.getElementById('routeSummary').textContent=`Routing unavailable. Direct distance: 1→2 ${d1.toFixed(1)} mi • 2→3 ${d2.toFixed(1)} mi`;
-          document.getElementById('routeStatus').textContent='The road-routing service could not be reached, so the orange dashed line is a straight-line fallback. Use the Google Maps button for live walking directions.';
+          document.getElementById('routeSummary').textContent=`Live routing unavailable. Approximate direct distance: 1→2 ${d1.toFixed(1)} mi • 2→3 ${d2.toFixed(1)} mi`;
+          document.getElementById('routeStatus').textContent='The live road-routing service could not be reached. The dashed orange line still passes through the route-shaping points from the supplied Google Maps route. Use the Google Maps button for turn-by-turn walking directions.';
         });
     })();
   </script>
