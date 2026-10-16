@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Yerington Route: Tribal Gym → Overflow Ponds → Anaconda Overlook</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    :root {
+      --bg:#f5f5f2; --panel:#fff; --text:#1f2937; --muted:#59636e;
+      --border:#d8dde3; --accent:#195d85; --accent-dark:#12425e; --route:#b45309;
+    }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; color:var(--text); background:var(--bg); }
+    header { padding:16px 16px 10px; max-width:1100px; margin:0 auto; }
+    h1 { margin:0 0 6px; font-size:clamp(1.25rem,4vw,1.9rem); line-height:1.15; }
+    header p { margin:0; color:var(--muted); font-size:.95rem; }
+    .layout { max-width:1100px; margin:0 auto; padding:0 12px 18px; display:grid; gap:12px; }
+    .panel { background:var(--panel); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+    #map { height:min(68vh,680px); min-height:420px; width:100%; background:#e7e2d6; }
+    .route-info { padding:12px 14px 14px; }
+    .stop { padding:10px 0; border-bottom:1px solid var(--border); }
+    .stop:last-of-type { border-bottom:0; }
+    .stop-title { font-weight:750; margin-bottom:2px; }
+    .coords { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:.92rem; overflow-wrap:anywhere; }
+    .address,.small { color:var(--muted); font-size:.9rem; }
+    .buttons { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+    a.button { display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:10px 13px; text-decoration:none; border-radius:9px; background:var(--accent); color:#fff; font-weight:700; }
+    a.button.secondary { background:#eef3f6; color:var(--accent-dark); border:1px solid #bfd0db; }
+    .summary { margin:0 0 8px; font-weight:700; }
+    .status { margin-top:8px; padding:9px 10px; border-radius:8px; background:#f7f7f5; color:var(--muted); font-size:.9rem; }
+    .attribution-note { margin-top:10px; color:var(--muted); font-size:.78rem; line-height:1.35; }
+    .attribution-note a { color:inherit; }
+
+    .number-icon { background:transparent; border:0; }
+    .number-dot { width:34px; height:34px; border-radius:50%; background:#1f2937; color:#fff; border:2px solid #fff; display:grid; place-items:center; font-weight:800; box-shadow:0 1px 5px rgba(0,0,0,.38); }
+    .leaflet-tooltip.stop-label { background:rgba(255,255,255,.96); color:#1f2937; border:1px solid #aeb6bf; border-radius:5px; box-shadow:0 1px 3px rgba(0,0,0,.12); font-weight:750; font-size:13px; padding:4px 7px; }
+    .leaflet-tooltip.stop-label:before { display:none; }
+    .leaflet-control-layers { font-size:14px; }
+    .leaflet-popup-content { line-height:1.45; }
+    .leaflet-popup-content a { color:var(--accent-dark); font-weight:650; }
+    .basemap-hint { position:absolute; z-index:500; left:10px; bottom:24px; background:rgba(255,255,255,.92); border:1px solid #bac1c8; border-radius:5px; padding:4px 7px; font-size:12px; color:#374151; pointer-events:none; }
+
+    @media (min-width:800px) {
+      .layout { grid-template-columns:minmax(0,2.1fr) minmax(290px,.9fr); align-items:start; }
+      .info-panel { position:sticky; top:8px; }
+      #map { height:min(76vh,760px); min-height:560px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Yerington Route: Tribal Gym → Overflow Ponds → Anaconda Overlook</h1>
+    <p>Tap a numbered marker for coordinates. Use the layer button on the map to switch between USGS topographic and aerial backgrounds.</p>
+  </header>
+
+  <main class="layout">
+    <section class="panel" style="position:relative">
+      <div id="map" aria-label="Interactive route map"></div>
+      <div class="basemap-hint">USGS basemap • use layers button to switch view</div>
+    </section>
+
+    <aside class="panel info-panel">
+      <div class="route-info">
+        <p class="summary" id="routeSummary">Calculating road-following walking distance…</p>
+
+        <div class="stop">
+          <div class="stop-title">1 — Tribal Gym</div>
+          <div class="address">171 Campbell Lane, Yerington, NV</div>
+          <div class="coords">39.07013, -119.18626</div>
+        </div>
+        <div class="stop">
+          <div class="stop-title">2 — Overflow Ponds</div>
+          <div class="coords">38.99413, -119.19851</div>
+        </div>
+        <div class="stop">
+          <div class="stop-title">3 — Anaconda Overlook</div>
+          <div class="address">1 Austin St, Yerington, NV</div>
+          <div class="coords">38.98665, -119.20680</div>
+        </div>
+
+        <div class="buttons">
+          <a class="button" href="https://www.google.com/maps/dir/?api=1&origin=39.07013%2C-119.18626&destination=38.98665%2C-119.20680&waypoints=38.99413%2C-119.19851&travelmode=walking" target="_blank" rel="noopener">Open walking route in Google Maps</a>
+          <a class="button secondary" href="https://www.google.com/maps/search/?api=1&query=38.99413%2C-119.19851" target="_blank" rel="noopener">Open Overflow Ponds</a>
+        </div>
+
+        <div class="status" id="routeStatus">Background map is served by USGS The National Map. The displayed route intentionally follows the motor-vehicle road network so it stays on US-95 ALT/Burch Drive rather than taking unrealistic pedestrian shortcuts; the time is converted to a walking estimate. Use Google Maps for live navigation.</div>
+        <div class="attribution-note">Basemap: U.S. Geological Survey, The National Map. The topographic service combines USGS and other public-domain/reference datasets; imagery is from USGS/The National Map sources. Attribution is also displayed on the map.</div>
+      </div>
+    </aside>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    (function () {
+      const stops = [
+        {n:1, name:'Tribal Gym', address:'171 Campbell Lane, Yerington, NV', lat:39.07013, lon:-119.18626},
+        {n:2, name:'Overflow Ponds', address:'', lat:38.99413, lon:-119.19851},
+        {n:3, name:'Anaconda Overlook', address:'1 Austin St, Yerington, NV', lat:38.98665, lon:-119.20680}
+      ];
+
+      const map = L.map('map', { zoomControl:true, preferCanvas:true });
+
+      const usgsTopo = L.tileLayer(
+        'https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}',
+        {
+          maxZoom:16,
+          maxNativeZoom:16,
+          attribution:'Map services &copy; <a href="https://www.usgs.gov/programs/national-geospatial-program/national-map" target="_blank" rel="noopener">USGS The National Map</a>'
+        }
+      );
+
+      const usgsImageryTopo = L.tileLayer(
+        'https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryTopo/MapServer/tile/{z}/{y}/{x}',
+        {
+          maxZoom:16,
+          maxNativeZoom:16,
+          attribution:'Imagery/topo &copy; <a href="https://www.usgs.gov/programs/national-geospatial-program/national-map" target="_blank" rel="noopener">USGS The National Map</a>'
+        }
+      );
+
+      usgsImageryTopo.addTo(map);
+      L.control.layers({
+        'USGS Topographic': usgsTopo,
+        'USGS Aerial + Topo': usgsImageryTopo
+      }, null, {position:'topright', collapsed:false}).addTo(map);
+
+      let tileFailures = 0;
+      function noteTileError() {
+        tileFailures += 1;
+        if (tileFailures === 3) {
+          document.getElementById('routeStatus').textContent = 'The USGS basemap tiles are not loading in this browser/network. Try switching the map layer, or use the Google Maps button for navigation.';
+        }
+      }
+      usgsTopo.on('tileerror', noteTileError);
+      usgsImageryTopo.on('tileerror', noteTileError);
+
+      const bounds = [];
+      stops.forEach(stop => {
+        bounds.push([stop.lat, stop.lon]);
+        const icon = L.divIcon({
+          className:'number-icon',
+          html:`<div class="number-dot">${stop.n}</div>`,
+          iconSize:[34,34], iconAnchor:[17,17]
+        });
+        const gmapsPoint = `https://www.google.com/maps/search/?api=1&query=${stop.lat}%2C${stop.lon}`;
+        const addressHtml = stop.address ? `<div>${stop.address}</div>` : '';
+        const marker = L.marker([stop.lat, stop.lon], {icon}).addTo(map);
+        marker.bindTooltip(`${stop.n} — ${stop.name}`, {
+          permanent:true, direction:'right', offset:[18,0], className:'stop-label'
+        });
+        marker.bindPopup(
+          `<strong>${stop.n} — ${stop.name}</strong>${addressHtml}` +
+          `<div style="font-family:monospace;margin-top:4px">${stop.lat.toFixed(5)}, ${stop.lon.toFixed(5)}</div>` +
+          `<div style="margin-top:7px"><a href="${gmapsPoint}" target="_blank" rel="noopener">Open this point in Google Maps</a></div>`
+        );
+      });
+      map.fitBounds(bounds, {padding:[55,55], maxZoom:13});
+
+      function directMiles(a,b) {
+        const R=6371, toRad=d=>d*Math.PI/180;
+        const dLat=toRad(b.lat-a.lat), dLon=toRad(b.lon-a.lon);
+        const q=Math.sin(dLat/2)**2 + Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.sin(dLon/2)**2;
+        return 2*R*Math.atan2(Math.sqrt(q),Math.sqrt(1-q))*0.621371;
+      }
+
+      const fallback = L.polyline(stops.map(s=>[s.lat,s.lon]), {
+        color:'#b45309', weight:4, opacity:.8, dashArray:'8 8'
+      }).addTo(map);
+
+      const coords = stops.map(s=>`${s.lon},${s.lat}`).join(';');
+      const routeUrl = `https://routing.openstreetmap.de/routed-car/route/v1/driving/${coords}?overview=full&geometries=geojson&steps=false`;
+      const WALKING_MPH = 3.0;
+
+      fetch(routeUrl)
+        .then(r => { if (!r.ok) throw new Error('Routing service response was not OK'); return r.json(); })
+        .then(data => {
+          if (!data.routes || !data.routes.length) throw new Error('No route returned');
+          const route=data.routes[0];
+          map.removeLayer(fallback);
+          const latlngs=route.geometry.coordinates.map(c=>[c[1],c[0]]);
+          const roadLine=L.polyline(latlngs,{color:'#b45309',weight:5,opacity:.9}).addTo(map);
+          map.fitBounds(roadLine.getBounds(),{padding:[55,55],maxZoom:13});
+
+          const totalMi=route.distance/1609.344, totalMin=(totalMi/WALKING_MPH)*60;
+          const leg1=route.legs[0] ? route.legs[0].distance/1609.344 : null;
+          const leg2=route.legs[1] ? route.legs[1].distance/1609.344 : null;
+          const parts=[];
+          if (leg1!==null) parts.push(`1→2: ${leg1.toFixed(1)} mi`);
+          if (leg2!==null) parts.push(`2→3: ${leg2.toFixed(1)} mi`);
+          const hrs=Math.floor(totalMin/60), mins=Math.round(totalMin%60);
+          const timeText=hrs ? `${hrs} hr ${mins} min` : `${Math.round(totalMin)} min`;
+          document.getElementById('routeSummary').textContent=`${parts.join(' • ')} • Total: ${totalMi.toFixed(1)} mi • est. walk ${timeText}`;
+          document.getElementById('routeStatus').textContent='The orange line uses road-routing geometry so it follows the practical road corridor (including US-95 ALT and Burch Drive) instead of pedestrian shortcuts. Walking time is estimated at 3 mph and is not turn-by-turn pedestrian safety guidance; verify shoulder/access conditions before walking.';
+        })
+        .catch(() => {
+          const d1=directMiles(stops[0],stops[1]), d2=directMiles(stops[1],stops[2]);
+          document.getElementById('routeSummary').textContent=`Routing unavailable. Direct distance: 1→2 ${d1.toFixed(1)} mi • 2→3 ${d2.toFixed(1)} mi`;
+          document.getElementById('routeStatus').textContent='The road-routing service could not be reached, so the orange dashed line is a straight-line fallback. Use the Google Maps button for live walking directions.';
+        });
+    })();
+  </script>
+</body>
+</html>
