@@ -70,7 +70,7 @@
         </div>
         <div class="stop">
           <div class="stop-title">2 — Pit Overlook</div>
-          <div class="coords">38.98665, -119.20680</div>
+          <div class="coords">38.989113, -119.205201</div>
         </div>
         <div class="stop">
           <div class="stop-title">3 — Overflow Ponds</div>
@@ -78,11 +78,11 @@
         </div>
 
         <div class="status" style="margin-top:10px;background:#fff7ed;color:#7c2d12;border:1px solid #fed7aa;">
-          <strong>Route to Pit Overlook from Tribal Gym:</strong> Turn right onto Campbell Lane, left onto Sunset Hill Drive, right onto Luzier Lane, then left onto the unnamed dirt road and continue out to the Anaconda lookout area.
+          <strong>Route to Pit Overlook:</strong> Turn right onto Campbell Lane, left onto Sunset Hill Drive, right onto Luzier Lane, then left onto the unnamed dirt road and continue out to the Anaconda lookout area.
         </div>
 
         <div class="buttons">
-          <a class="button" href="https://www.google.com/maps/dir/39.0742486,-119.2112574/38.98665,-119.2068/38.99422,-119.19969/@38.9880731,-119.2069678,1028m/data=!3m1!1e3!4m25!4m24!1m10!3m4!1m2!1d-119.2139561!2d39.065831!3s0x8098463e13d50017:0xbb5e03e775de9c6e!3m4!1m2!1d-119.2092536!2d39.026143!3s0x809847eab6a4ef5f:0x7a5ca100b70d1f40!1m10!3m4!1m2!1d-119.2068972!2d38.9862462!3s0x80983847325bfd53:0x17bcc7b75c66e07f!3m4!1m2!1d-119.2070851!2d38.9878547!3s0x80983840e42fcd37:0x33eb6b30f95d2789!1m0!3e2" target="_blank" rel="noopener">Open exact walking route in Google Maps</a>
+          <a class="button" href="https://www.google.com/maps/dir/?api=1&origin=39.0742486%2C-119.2112574&destination=38.99422%2C-119.19969&waypoints=39.065831%2C-119.2139561%7C39.026143%2C-119.2092536%7C38.989113%2C-119.205201&travelmode=walking" target="_blank" rel="noopener">Open walking route in Google Maps</a>
           <a class="button secondary" href="https://www.google.com/maps/search/?api=1&query=38.99422%2C-119.19969" target="_blank" rel="noopener">Open Overflow Ponds</a>
         </div>
 
@@ -97,7 +97,7 @@
     (function () {
       const stops = [
         {n:1, name:'Tribal Gym', address:'', lat:39.0742486, lon:-119.2112574},
-        {n:2, name:'Pit Overlook', address:'', lat:38.98665, lon:-119.20680},
+        {n:2, name:'Pit Overlook', address:'', lat:38.989113, lon:-119.205201},
         {n:3, name:'Overflow Ponds', address:'', lat:38.99422, lon:-119.19969}
       ];
 
@@ -172,14 +172,12 @@
 
       // Route-shaping points extracted from the supplied Google Maps route.
       // They keep the first leg on Campbell Lane → Sunset Hill Drive → Luzier Lane → dirt-road approach,
-      // and preserve the intended path around the overlook before continuing to the Overflow Ponds.
+      // then continue from the updated Pit Overlook to the Overflow Ponds.
       const routePoints = [
         {kind:'stop', name:'Tribal Gym', lat:39.0742486, lon:-119.2112574},
         {kind:'via',  lat:39.0658310, lon:-119.2139561},
         {kind:'via',  lat:39.0261430, lon:-119.2092536},
-        {kind:'stop', name:'Pit Overlook', lat:38.9866500, lon:-119.2068000},
-        {kind:'via',  lat:38.9862462, lon:-119.2068972},
-        {kind:'via',  lat:38.9878547, lon:-119.2070851},
+        {kind:'stop', name:'Pit Overlook', lat:38.9891130, lon:-119.2052010},
         {kind:'stop', name:'Overflow Ponds', lat:38.9942200, lon:-119.1996900}
       ];
       const coords = routePoints.map(p=>`${p.lon},${p.lat}`).join(';');
@@ -205,7 +203,7 @@
           const hrs=Math.floor(totalMin/60), mins=Math.round(totalMin%60);
           const timeText=hrs ? `${hrs} hr ${mins} min` : `${Math.round(totalMin)} min`;
           document.getElementById('routeSummary').textContent=`1→2: ${leg1.toFixed(1)} mi • 2→3: ${leg2.toFixed(1)} mi • Total: ${totalMi.toFixed(1)} mi • est. walk ${timeText}`;
-          document.getElementById('routeStatus').textContent='The orange line is forced through route-shaping points taken from the supplied Google Maps route so the approach follows Campbell Lane, Sunset Hill Drive, Luzier Lane, and the dirt-road approach to the Anaconda lookout. Walking time is estimated at 3 mph; use Google Maps for live navigation and verify access/conditions on the dirt-road segment.';
+          document.getElementById('routeStatus').textContent='The orange line is forced through route-shaping points from the supplied route so the approach follows Campbell Lane, Sunset Hill Drive, Luzier Lane, and the dirt-road approach to the updated Pit Overlook. Walking time is estimated at 3 mph; use Google Maps for live navigation and verify access/conditions on the dirt-road segment.';
         })
         .catch(() => {
           // If live routing fails, draw the shaping-point path so the intended corridor is still visible.
