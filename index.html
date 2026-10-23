@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Yerington Route: Tribal Gym → Pit Overlook → Overflow Ponds</title>
+  <title>Yerington Route: Tribal Gym → Burch Drive → Overflow Ponds</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     :root {
@@ -50,7 +50,7 @@
 </head>
 <body>
   <header>
-    <h1>Yerington Route: Tribal Gym → Pit Overlook → Overflow Ponds</h1>
+    <h1>Yerington Route: Tribal Gym → Burch Drive → Overflow Ponds</h1>
     <p>Tap a numbered marker for coordinates. Use the layer button on the map to switch between USGS topographic and aerial backgrounds.</p>
   </header>
 
@@ -69,7 +69,7 @@
           <div class="coords">39.0742486, -119.2112574</div>
         </div>
         <div class="stop">
-          <div class="stop-title">2 — Pit Overlook</div>
+          <div class="stop-title">2 — Burch Drive</div>
           <div class="coords">38.989113, -119.205201</div>
         </div>
         <div class="stop">
@@ -78,7 +78,7 @@
         </div>
 
         <div class="status" style="margin-top:10px;background:#fff7ed;color:#7c2d12;border:1px solid #fed7aa;">
-          <strong>Route to Pit Overlook from Tribal Gym:</strong> Turn right onto Campbell Lane, left onto Sunset Hill Drive, right onto Luzier Lane, then left onto the unnamed dirt road and continue out to the Anaconda lookout area.
+          <strong>Route to Burch Drive from Tribal Gym:</strong> Turn right onto Campbell Lane, left onto Sunset Hill Drive, right onto Luzier Lane, then left onto the unnamed dirt road and continue out to the Anaconda lookout area.
         </div>
 
         <div class="buttons">
@@ -97,7 +97,7 @@
     (function () {
       const stops = [
         {n:1, name:'Tribal Gym', address:'', lat:39.0742486, lon:-119.2112574},
-        {n:2, name:'Pit Overlook', address:'', lat:38.989113, lon:-119.205201},
+        {n:2, name:'Burch Drive', address:'', lat:38.989113, lon:-119.205201},
         {n:3, name:'Overflow Ponds', address:'', lat:38.99422, lon:-119.19969}
       ];
 
@@ -172,12 +172,12 @@
 
       // Route-shaping points extracted from the supplied Google Maps route.
       // They keep the first leg on Campbell Lane → Sunset Hill Drive → Luzier Lane → dirt-road approach,
-      // then continue from the updated Pit Overlook to the Overflow Ponds.
+      // then continue from the updated Burch Drive to the Overflow Ponds.
       const routePoints = [
         {kind:'stop', name:'Tribal Gym', lat:39.0742486, lon:-119.2112574},
         {kind:'via',  lat:39.0658310, lon:-119.2139561},
         {kind:'via',  lat:39.0261430, lon:-119.2092536},
-        {kind:'stop', name:'Pit Overlook', lat:38.9891130, lon:-119.2052010},
+        {kind:'stop', name:'Burch Drive', lat:38.9891130, lon:-119.2052010},
         {kind:'stop', name:'Overflow Ponds', lat:38.9942200, lon:-119.1996900}
       ];
       const coords = routePoints.map(p=>`${p.lon},${p.lat}`).join(';');
@@ -196,14 +196,14 @@
 
           // OSRM creates one leg between every shaping point. Sum them into the two public-facing legs.
           const legMiles = route.legs.map(l => l.distance/1609.344);
-          const leg1 = legMiles.slice(0,3).reduce((a,b)=>a+b,0); // Tribal Gym → Pit Overlook
-          const leg2 = legMiles.slice(3).reduce((a,b)=>a+b,0);   // Pit Overlook → Overflow Ponds
+          const leg1 = legMiles.slice(0,3).reduce((a,b)=>a+b,0); // Tribal Gym → Burch Drive
+          const leg2 = legMiles.slice(3).reduce((a,b)=>a+b,0);   // Burch Drive → Overflow Ponds
           const totalMi = leg1 + leg2;
           const totalMin=(totalMi/WALKING_MPH)*60;
           const hrs=Math.floor(totalMin/60), mins=Math.round(totalMin%60);
           const timeText=hrs ? `${hrs} hr ${mins} min` : `${Math.round(totalMin)} min`;
           document.getElementById('routeSummary').textContent=`1→2: ${leg1.toFixed(1)} mi • 2→3: ${leg2.toFixed(1)} mi • Total: ${totalMi.toFixed(1)} mi • est. walk ${timeText}`;
-          document.getElementById('routeStatus').textContent='The orange line is forced through route-shaping points from the supplied route so the approach follows Campbell Lane, Sunset Hill Drive, Luzier Lane, and the dirt-road approach to the updated Pit Overlook. Walking time is estimated at 3 mph; use Google Maps for live navigation and verify access/conditions on the dirt-road segment.';
+          document.getElementById('routeStatus').textContent='The orange line is forced through route-shaping points from the supplied route so the approach follows Campbell Lane, Sunset Hill Drive, Luzier Lane, and the dirt-road approach to the updated Burch Drive. Walking time is estimated at 3 mph; use Google Maps for live navigation and verify access/conditions on the dirt-road segment.';
         })
         .catch(() => {
           // If live routing fails, draw the shaping-point path so the intended corridor is still visible.
